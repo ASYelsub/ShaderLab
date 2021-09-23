@@ -60,17 +60,17 @@
                     in a non-commutative equation, you'll get different results if you swap the base and blend colors
                 */
                 
-                color = base + blend; // add - commutative
+                //color = base + blend; // add - commutative
                 //color = base - blend; // subtract - non-commutative
                 // color = base * blend; // multiply - commutative
                 // color = base / blend; // divide - non-commutative
                 // color = min(base, blend); // darken - commutative
-                // color = 1 - (1 - base) / blend; // color burn - non-commutative
+                 color = 1 - (1 - base) / blend; // color burn - non-commutative
                 // color = base + blend - 1; // linear burn - commutative
                 // color = max(base, blend); // lighten - commutative
                 // color = 1 - (1 - base) * (1 - blend); // screen - commutative
                 // color = base / (1 - blend); // color dodge - non-commutative
-                 color = abs(base - blend); // difference - commutative
+               //  color = abs(base - blend); // difference - commutative
                 // color = 0.5 - 2 * (base - 0.5) * (blend - 0.5); // exclusion - commutative
 
                 // color = base <= 0.5 ? 2 * base * blend : 1 - 2 * (1 - base) * (1 - blend); // overlay - non-commutative
