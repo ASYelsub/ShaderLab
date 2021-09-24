@@ -46,6 +46,7 @@ Material:
     m_Colors:
     - _Color: {r: 0.9811321, g: 0.5121633, b: 0.36561054, a: 1}
     - _Vector: {r: 1, g: 1, b: 1, a: 1}
+    - _hourColor: {r: 0.8, g: 0, b: 0.13, a: 0}
     - _minuteColor: {r: 0.1, g: 1, b: 0.85, a: 0}
     - _secondColor: {r: 0.4, g: 0.4, b: 1, a: 0}
   m_BuildTextureStacks: []
