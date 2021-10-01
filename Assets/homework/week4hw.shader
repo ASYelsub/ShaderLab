@@ -1,5 +1,13 @@
 Shader "examples/week 4/homework"
 {
+    Properties
+    {
+        _bandSize ("BandWidth", range(0,1)) = .5
+        _bandIntensity("BandIntensity",range(0,1)) = .5
+        _lineColor("LineColor",Color)=(0,0,0,0)
+        _spaceColor("SpaceColor",Color)=(0,0,0,0)
+        _lineLerpColor("LineLerpColor",Color)=(0,0,0,0)
+    }
     SubShader
     {
         Tags { "RenderType"="Opaque" }
@@ -12,6 +20,11 @@ Shader "examples/week 4/homework"
             #include "UnityCG.cginc"
 
             #define TAU 6.28318530718
+            float _bandSize;
+            float _bandIntensity;
+            fixed4 _lineColor;
+            fixed4 _spaceColor;
+            fixed4 _lineLerpColor;
 
             struct MeshData
             {
@@ -32,51 +45,42 @@ Shader "examples/week 4/homework"
                 o.uv = v.uv;
                 return o;
             }
-
-            float random (float value) {
-                return frac(sin(value) * 90321);
-            }
+            
 
             float white_noise (float2 value) {
                 return frac(sin(dot(value, float2(128.239, -78.381))) * 90321);
             }
-
+            
+            float oscillateCircle(float2 uv){
+                return step(sin(_Time.y)*0.5+0.5,1-length(uv));
+            }
+            
+            float rotateAroundCenterUVOffset(float2 uv, float2 gridUV){
+                gridUV = white_noise(uv);
+                float index = floor(uv.x) + floor(uv.y);
+                _bandSize = 1-_bandSize;
+                _bandIntensity = 1-_bandIntensity;
+                gridUV.x+=sin(_Time.y + index/3) * _bandSize;
+                gridUV.y+=cos(_Time.y + index/3) * _bandSize;
+                float output = step(_bandIntensity,1-length(gridUV));
+                return output;
+            }
             float4 frag (Interpolators i) : SV_Target
             {
+                float gridSize = 20;
                 float2 uv = i.uv;
 
-                int gridSize = 20;
-                float2 fpos = frac(uv * gridSize);
-                float2 ipos = floor(uv * gridSize);
-            
-                fpos = fpos * 2.0 - 1.0;
-                float polar = atan2(fpos.y, fpos.x);
+                uv = uv * gridSize; 
+                float2 gridUV = frac(uv) * 2 - 1;
+
+                float t = cos(2*_Time.y);
+                t = t/2;
+                t = t + .5;
+                float t2 = sin(_Time.z);
+                float3 result = saturate(rotateAroundCenterUVOffset(uv,gridUV)-rotateAroundCenterUVOffset(uv,gridUV))+_spaceColor;
+                result = result + saturate(rotateAroundCenterUVOffset(uv,gridUV))*lerp(_lineColor,_lineLerpColor,t2);
                 
-                // atan2 will give us a range from -PI to PI (radians). dividing by 2PI will give us a range -0.5 to 0.5. add 0.5 for range of 0 - 1
-                polar = (polar / TAU) + 0.5;
-
-                float wn = white_noise(ipos);
-                
-                // using lerp here to use our random value to give us either -1 or 1
-                // you could also do: spinDir = step(0.5, rand) * 2 - 1;
-                float spinDir = lerp(-1, 1, step(0.5, wn));
-
-                // adding to our polar value will change the rotation since it represents an angle
-                // so we add rand as an offset
-                // then we add time with some modifications to get it to animate
-                polar = frac(polar + wn + (_Time.x * spinDir * (0.1 + wn * 30)));
-                
-                // using pow() here allows us to shape the brightness of our angle gradient
-                polar = pow(polar, 0.1 + wn * 2);
-
-                // here i create a circle in each cell
-                float circle = smoothstep(0.00, 0.03, 1 - length(fpos));
-
-                // our circle acting as a mask, when multiplied with our polar value will make each cell appear circular
-                polar *= circle;
-
-                // return float4(wn.rrr, 1.0);
-                return float4(polar.rrr, 1.0);
+                return float4(result.rgb, 1.0);
             }
             ENDCG
         }

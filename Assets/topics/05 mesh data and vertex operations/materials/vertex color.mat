@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: pattern
-  m_Shader: {fileID: 4800000, guid: 97717861194424a8c9f01d6b241215cf, type: 3}
+  m_Name: vertex color
+  m_Shader: {fileID: 4800000, guid: 9f4dc5a2f17f14279a2ef2de7d2af120, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -18,14 +18,6 @@ Material:
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - _Glossiness: 0.5
-    - _Metallic: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-  m_BuildTextureStacks: []
+    m_TexEnvs: []
+    m_Floats: []
+    m_Colors: []
