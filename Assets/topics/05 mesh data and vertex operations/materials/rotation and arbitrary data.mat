@@ -20,8 +20,8 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Floats:
-    - _rotX: -1.06
-    - _rotY: -1.06
-    - _rotZ: 1.17
+    - _rotX: 0
+    - _rotY: 0
+    - _rotZ: 0
     m_Colors: []
   m_BuildTextureStacks: []

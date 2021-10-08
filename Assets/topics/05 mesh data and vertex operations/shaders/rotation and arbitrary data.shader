@@ -28,6 +28,7 @@
             {
                 float4 vertex : POSITION;
                 float4 color : COLOR;
+                float2 uv : TEXCOORD0;
             };
 
             struct Interpolators
