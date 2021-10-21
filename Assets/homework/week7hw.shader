@@ -111,26 +111,30 @@ Shader "examples/week 7/homework"
                 
                 float specularFalloff = max(0, dot(normal, halfDirection));
                 specularFalloff = pow(specularFalloff, _gloss * MAX_SPECULAR_POWER + 0.0001) * _gloss;
-
+                
 
                 float3 ambientColor = _ambientColor;
-               
+               float ambientAntiFalloff = saturate(1-diffuseFalloff);
                 
                 float dSteps = max(2,_diffuseSteps);
                 float sSteps = max(1,_specularSteps);
                 diffuseFalloff = floor(diffuseFalloff * dSteps) / dSteps;
-                wn = saturate(wn);
+                ambientAntiFalloff = floor(ambientAntiFalloff * dSteps)/dSteps;
+                //wn = saturate(wn);
                 
                 //noise more intense when darker
-                diffuseFalloff = diffuseFalloff + (1-(diffuseFalloff))*wn;
+               //diffuseFalloff = diffuseFalloff + (1-(diffuseFalloff))*wn;
                 
                 //noise more intense when lighter
-              //  diffuseFalloff = diffuseFalloff *wn;
+              //diffuseFalloff = diffuseFalloff *wn;
+
+                //float ambientAntiFalloff = floor(diffuseFalloff)
+                diffuseFalloff = diffuseFalloff + (1-(diffuseFalloff))*ambientColor;
 
 
                 specularFalloff = floor(specularFalloff * sSteps) / sSteps;
                 float3 surfaceColor = _surfaceColor;
-                float3 diffuse = diffuseFalloff * surfaceColor * lightColor;
+                float3 diffuse = ambientAntiFalloff * surfaceColor * lightColor;
                 float3 specular = specularFalloff * lightColor;
 
                 
