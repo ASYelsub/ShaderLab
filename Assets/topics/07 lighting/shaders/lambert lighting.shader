@@ -1,0 +1,60 @@
+﻿Shader "examples/week 7/lambert"
+{
+    Properties 
+    {
+        _surfaceColor("surface color", Color) = (1,1,1,1)
+    }
+    SubShader
+    {
+
+        
+        Tags { "LightMode" = "ForwardBase" }
+
+        Pass
+        {
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+            #include "Lighting.cginc"
+            //#include "UnityLightingCommon.cginc"
+
+
+            float3 _surfaceColor;
+
+            struct MeshData
+            {
+                float4 vertex : POSITION;
+                float3 normal : NORMAL;
+            };
+
+            struct Interpolators
+            {
+                float4 vertex : SV_POSITION;
+                float3 normal : NORMAL;
+            };
+
+            Interpolators vert (MeshData v)
+            {
+                Interpolators o;
+                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.normal = v.normal;
+                return o;
+            }
+
+            float4 frag (Interpolators i) : SV_Target
+            {
+                float3 color = 0;
+                float3 lightDirection = _WorldSpaceLightPos0; //gives the direction of the directional light
+                float3 lightColor = _LightColor0; //will pass the color of the directional light
+
+                float falloff = max(0,dot(normalize(i.normal),lightDirection));
+
+                color = falloff * _surfaceColor * lightColor;
+
+                return float4(color, 1.0);
+            }
+            ENDCG
+        }
+    }
+}
