@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: posterized
-  m_Shader: {fileID: 4800000, guid: b4718842acba043118d678aa47e13c9a, type: 3}
+  m_Shader: {fileID: 4800000, guid: 9f2154b89d7ce4f98a6b149ee619c9eb, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -32,6 +32,7 @@ Material:
     - _displacement: 0.05
     - _gloss: 0.77
     - _lightSteps: 23.95
+    - _noisePattern: 10
     - _scale: 15.5
     - _specularContrast: 32
     - _specularLightSteps: 3
@@ -43,5 +44,6 @@ Material:
     - _ambientColor: {r: 0.31576222, g: 0.21226418, b: 1, a: 1}
     - _color: {r: 0, g: 0, b: 0.8, a: 1}
     - _color2: {r: 0, g: 0, b: 0.8, a: 1}
+    - _grainColor: {r: 0, g: 0, b: 0, a: 0}
     - _surfaceColor: {r: 1, g: 0.50416666, b: 0, a: 1}
   m_BuildTextureStacks: []
