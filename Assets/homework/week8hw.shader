@@ -1,17 +1,18 @@
-Shader "examples/week 8/homework"
+Shader "examples/week 8/noise land"
 {
     Properties
     {
-        _color ("color", Color) = (1, 1, 1, 1)
+        _highColor ("high color", Color) = (1, 1, 1, 1)
+        _highElevation ("high elevation", Float) = 3
+        _lowColor ("low color", Color) = (1, 1, 1, 1)
+        _lowElevation ("low elevation", Float) = 3
         _scale ("noise scale", Range(2, 50)) = 15.5
-        _displacement ("displacement", Range(0, 0.75)) = 0.33
-        _waterScale("water scale",Range(.1,50)) = 20
-        _voronoiPower ("voronoi power", Range(0,10)) = 1
+        _displacement ("displacement", Range(0, 1)) = 0.33
     }
 
     SubShader
     {
-        Tags { "RenderType"="Transparent" }
+        Tags { "RenderType"="Opaque" }
 
         Pass
         {
@@ -19,12 +20,13 @@ Shader "examples/week 8/homework"
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
-        
-            float3 _color;
+
+            float3 _highColor;
+            float _highElevation;
+            float3 _lowColor;
+            float _lowElevation;
             float _scale;
             float _displacement;
-            float _voronoiPower;
-            float _waterScale;
 
             float rand (float2 uv) {
                 return frac(sin(dot(uv.xy, float2(12.9898, 78.233))) * 43758.5453123);
@@ -32,16 +34,19 @@ Shader "examples/week 8/homework"
 
             float value_noise (float2 uv) {
                 float2 ipos = floor(uv);
+                //ipos +=sin(_Time.z)*.5+.5;
                 float2 fpos = frac(uv); 
-                
-                float o  = rand(ipos); 
+                fpos +=sin(_Time.z)*.5+.5;
+                float o  = rand(ipos);
                 float x  = rand(ipos + float2(1, 0));
                 float y  = rand(ipos + float2(0, 1));
                 float xy = rand(ipos + float2(1, 1));
 
                 float2 smooth = smoothstep(0, 1, fpos);
-                return lerp( lerp(o,  x, smooth.x), 
+                float l =lerp( lerp(o,  x, smooth.x), 
                              lerp(y, xy, smooth.x), smooth.y);
+                //l +=sin(_Time.z)*.5+.5;
+                return l;
             }
 
             float fractal_noise (float2 uv) {
@@ -51,43 +56,9 @@ Shader "examples/week 8/homework"
                 n += (1 / 4.0)  * value_noise( uv * 2); 
                 n += (1 / 8.0)  * value_noise( uv * 4); 
                 n += (1 / 16.0) * value_noise( uv * 8);
-                n = ( sin( _Time.z + n * 6.2831 ) * 0.5 + 0.5 );
                 
                 return n;
             }
-
-        float2 voronoihash1( float2 p )
-		{
-			p = float2( dot( p, float2( 127.1, 311.7 ) ), dot( p, float2( 269.5, 183.3 ) ) );
-			return frac( sin( p ) *43758.5453);
-		}
-
-        //taken from Amplify's "voronoi" node
-		float voronoi1( float2 v, float time, inout float2 id, inout float2 mr, float smoothness )
-		{
-			float2 n = floor( v );
-			float2 f = frac( v );
-			float F1 = 8.0;
-			float F2 = 8.0; float2 mg = 0;
-			for ( int j = -1; j <= 1; j++ )
-			{
-				for ( int i = -1; i <= 1; i++ )
-			 	{
-			 		float2 g = float2( i, j );
-			 		float2 o = voronoihash1( n + g );
-					o = ( sin( time + o * 6.2831 ) * 0.5 + 0.5 ); float2 r = f - g - o;
-					float d = 0.5 * dot( r, r );
-			 		if( d<F1 ) {
-			 			F2 = F1;
-			 			F1 = d; mg = g; mr = r; id = o;
-			 		} else if( d<F2 ) {
-			 			F2 = d;
-			 		}
-			 	}
-			}
-			return F1;
-		}
-
 
             struct MeshData
             {
@@ -106,21 +77,24 @@ Shader "examples/week 8/homework"
             Interpolators vert (MeshData v)
             {
                 Interpolators o;
+
                 o.uv = v.uv;
-//                v.vertex.xyz += v.normal.xyz * fractal_noise(o.uv * _scale)*_displacement;
+//                o.uv += sin(_Time.z)*0.5+0.5;
+                v.vertex.xyz += v.normal.xyz * fractal_noise((o.uv * _scale)) * _displacement;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex);
 
-                o.uv = v.uv;
+                
                 return o;
             }
 
             float4 frag (Interpolators i) : SV_Target
             {
-                float2 f = float2(0,0);
-                
-                float3 color = voronoi1( i.uv*_waterScale, _Time.z, f, f, 0);
-			
+                float elevation = i.worldPos.y;
+                float3 c1 = saturate(fractal_noise(i.uv*_scale)*_displacement * _highColor);
+                float3 c2 = saturate((1-fractal_noise(i.uv*_scale)*_displacement)*_lowColor);
+
+                float3 color = c1+c2;
 
                 return float4(color, 1.0);
             }
