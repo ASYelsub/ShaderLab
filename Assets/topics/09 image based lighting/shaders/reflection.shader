@@ -2,10 +2,11 @@
 {
     Properties 
     {
-        [NoScaleOffset] _IBL ("IBL cube map", Cube) = "black" {}
+        //[NoScaleOffset] _IBL ("IBL cube map", Cube) = "black" {}
         
         // smoothness of surface - sharpness of reflection
         _gloss ("gloss", Range(0,1)) = 1
+        _reflectivity("reflectivity", Range(0,1)) = 1
     }
     SubShader
     {
@@ -22,9 +23,11 @@
             // might be UnityLightingCommon.cginc for later versions of unity
             #include "Lighting.cginc"
 
+            #define SPECULAR_MIP_STEPS 4
 
-            samplerCUBE _IBL;
+           // samplerCUBE _IBL;
             float _gloss;
+            float _reflectivity;
 
             struct MeshData
             {
@@ -60,7 +63,14 @@
                 float2 uv = i.uv;
                 float3 normal = i.normal;
 
+                float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld);
+                float3 viewReflection = reflect(-viewDirection,normal);
 
+                float mip = (1-_gloss) * SPECULAR_MIP_STEPS;
+              //  float3 indirectSpecular = texCUBElod(_IBL,float4(viewReflection,mip))*_reflectivity;
+                float3 indirectSpecular = UNITY_SAMPLE_TEXCUBE_LOD(unity_SpecCube0,viewReflection,mip)*_reflectivity;
+
+                color = indirectSpecular;
                 return float4(color, 1.0);
             }
             ENDCG

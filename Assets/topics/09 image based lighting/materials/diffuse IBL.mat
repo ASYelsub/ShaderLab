@@ -42,7 +42,9 @@ Material:
     m_Floats:
     - _displacementIntensity: 0.5
     - _gloss: 0.553
+    - _mipLevel: 12
     - _normalIntensity: 0.571
     - _specularContrast: 32
     - _specularIntensity: 1
     m_Colors: []
+  m_BuildTextureStacks: []

@@ -104,12 +104,13 @@
 
                 float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld);
                 
-
+                float fresnel = 1-saturate(dot(viewDirection,normal));
+                fresnel = pow(fresnel,_fresnelPower);
 
 
 
                 // since fresnel affects reflectivity, we'll use it to modify the reflectivity variable
-                float reflectivity = _reflectivity;
+                float reflectivity = _reflectivity * fresnel;
 
 
 

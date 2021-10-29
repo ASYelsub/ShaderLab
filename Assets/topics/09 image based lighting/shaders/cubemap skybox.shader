@@ -2,7 +2,7 @@
 {
     Properties 
     {
-
+        [NoScaleOffset] _texCube ("cube map", Cube) = "black" {}
     }
 
     SubShader
@@ -17,6 +17,8 @@
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
+
+            samplerCUBE _texCube;
 
             struct MeshData
             {
@@ -41,6 +43,11 @@
             float4 frag (Interpolators i) : SV_Target
             {
                 float3 color = 0;
+                float3 sampleVec = normalize(i.objPos);
+                
+
+                color = texCUBElod(_texCube, float4(sampleVec,0)); //0 is the highest resolution mip level
+
 
                 return float4(color, 1.0);
             }

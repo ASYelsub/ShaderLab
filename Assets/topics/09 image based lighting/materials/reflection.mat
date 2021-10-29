@@ -50,3 +50,4 @@ Material:
     - _reflectivity: 1
     - _specularContrast: 32
     m_Colors: []
+  m_BuildTextureStacks: []

@@ -45,9 +45,10 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _displacementIntensity: 0.5
-    - _gloss: 0.768
-    - _normalIntensity: 0.357
-    - _reflectivity: 0.182
+    - _gloss: 0.78
+    - _normalIntensity: 1
+    - _reflectivity: 0.53
     - _specularContrast: 32
     - _specularIntensity: 1
     m_Colors: []
+  m_BuildTextureStacks: []

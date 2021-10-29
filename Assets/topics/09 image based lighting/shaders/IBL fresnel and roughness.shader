@@ -5,6 +5,7 @@
         _albedo ("albedo", 2D) = "white" {}
         [NoScaleOffset] _normalMap ("normal map", 2D) = "bump" {}
         [NoScaleOffset] _displacementMap ("displacement map", 2D) = "gray" {}
+        [NoScaleOffset] _roughness("roughness", 2D) = "black" {}
         [NoScaleOffset] _IBL ("IBL cube map", Cube) = "black" {}
 
         // brightness of specular reflection - proportion of color contributed by diffuse and specular
@@ -37,6 +38,7 @@
             sampler2D _albedo; float4 _albedo_ST;
             sampler2D _normalMap;
             sampler2D _displacementMap;
+            sampler2D _roughness;
             samplerCUBE _IBL;
             float _reflectivity;
             float _fresnelPower;
@@ -117,7 +119,8 @@
                 // viewDirection is pointing toward the camera
                 float3 viewReflection = reflect(-viewDirection, normal);
                 
-                float gloss = 1;
+                float roughness = tex2D(_roughness, TRANSFORM_TEX(uv, _albedo)).r;
+                float gloss = roughness;
 
                 float mip = (1 - gloss) * SPECULAR_MIP_STEPS;
                 float3 indirectSpecular = texCUBElod(_IBL, float4(viewReflection, mip));

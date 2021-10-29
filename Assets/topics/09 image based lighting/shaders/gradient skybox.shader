@@ -5,12 +5,14 @@
         _colorHigh ("color high", Color) = (1, 1, 1, 1)
         _colorLow ("color low", Color) = (0, 0, 0, 1)
         _offset ("offset", Range(0, 1)) = 0
-        _contrast ("contrast", Float) = 1
+        _contrast ("contrast", Range(1,50)) = 10
     }
 
     SubShader
     {
-        Tags { }
+        Tags { "Queue" = "Background" "RenderType" = "Background" "PreviewType" = "Skybox" }
+        Cull off
+        Zwrite off
 
         Pass
         {
@@ -47,10 +49,11 @@
             float4 frag (Interpolators i) : SV_Target
             {
                 float3 color = 0;
+                float3 uv = normalize(i.uv )*0.5+0.5;
 
-                
-
-                return float4(color, 1.0);
+                color = lerp(_colorLow,_colorHigh,smoothstep(0,1,pow(saturate(uv.y + _offset), _contrast)));
+                //return float4(uv, 1.0);
+                return float4(color,1);
             }
             ENDCG
         }

@@ -37,8 +37,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Floats:
     - _displacementIntensity: 0.332
-    - _fresnelPower: 2.68
-    - _gloss: 0.859
+    - _fresnelPower: 1.1
+    - _gloss: 1
     - _normalIntensity: 0.363
-    - _reflectivity: 0.272
+    - _reflectivity: 0.46
     m_Colors: []
+  m_BuildTextureStacks: []

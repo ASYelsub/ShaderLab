@@ -10,6 +10,8 @@
         // reflectivity of surface - brightness of reflection
         _reflectivity ("reflectivity", Range(0,1)) = 0.5
 
+        _fresnelPower("fresnel power", Range(0,10)) = 5
+
     }
     SubShader
     {
@@ -31,6 +33,7 @@
             samplerCUBE _IBL;
             float _gloss;
             float _reflectivity;
+            float _fresnelPower;
 
             struct MeshData
             {
@@ -64,7 +67,7 @@
             {
                 float3 color = 0;
                 float2 uv = i.uv;
-                float3 normal = i.normal;
+                float3 normal = normalize(i.normal);
 
                 float3 viewDirection = normalize(_WorldSpaceCameraPos.xyz - i.posWorld);
                 
@@ -75,9 +78,10 @@
                 float3 indirectSpecular = texCUBElod(_IBL, float4(viewReflection, mip)) * _reflectivity;
 
 
+                float fresnel = 1 - saturate(dot(viewDirection,normal));
+                fresnel = pow(fresnel,_fresnelPower);
 
-                color = indirectSpecular;
-
+                color = indirectSpecular*fresnel;
                 return float4(color, 1.0);
             }
             ENDCG
