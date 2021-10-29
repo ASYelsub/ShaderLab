@@ -32,14 +32,14 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _displacementIntensity: 0.075
+    - _displacementIntensity: 0.127
     - _gloss: 0.537
     - _normalIntensity: 0.201
-    - _opacity: 0.627
+    - _opacity: 0.268
     - _refractionIntensity: 0.243
     - _specularContrast: 32
     - _specularIntensity: 1
     m_Colors:
     - _color: {r: 0.5235849, g: 0.70769066, b: 1, a: 1}
-    - _tint: {r: 0.3443396, g: 0.56112236, b: 1, a: 1}
+    - _tint: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
