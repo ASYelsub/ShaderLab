@@ -11,8 +11,22 @@
             #pragma fragment frag
             #include "UnityCG.cginc"
 
-            float rand (float2 uv) {
+           float rand (float2 uv) {
                 return frac(sin(dot(uv.xy, float2(12.9898, 78.233))) * 43758.5453123);
+            }
+
+            float value_noise (float2 uv) {
+                float2 ipos = floor(uv);
+                float2 fpos = frac(uv); 
+                
+                float o  = rand(ipos);
+                float x  = rand(ipos + float2(1, 0));
+                float y  = rand(ipos + float2(0, 1));
+                float xy = rand(ipos + float2(1, 1));
+
+                float2 smooth = smoothstep(0, 1, fpos);
+                return lerp( lerp(o,  x, smooth.x), 
+                             lerp(y, xy, smooth.x), smooth.y);
             }
 
             struct MeshData
