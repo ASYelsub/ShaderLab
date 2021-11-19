@@ -20,6 +20,6 @@ Material:
     serializedVersion: 3
     m_TexEnvs: []
     m_Floats:
-    - _smoothness: 0.503
+    - _smoothness: 0.484
     m_Colors: []
   m_BuildTextureStacks: []

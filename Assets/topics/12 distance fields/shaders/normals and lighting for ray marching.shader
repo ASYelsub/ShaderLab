@@ -50,6 +50,28 @@ Shader "examples/week 12/normals and lighting for ray marching"
                 return distance(spherePos, pos) - radius;
             }
 
+            float sdOctahedron( float3 p, float s){
+                p = abs(p);
+                return (p.x+p.y+p.z-s)*0.57735027;
+            }
+
+            float sdEllipsoid( float3 p, float3 r ){
+                float k0 = length(p/r);
+                float k1 = length(p/(r*r));
+                return k0*(k0-1.0)/k1;
+            }
+
+            float sdHexPrism( float3 p, float2 h )
+            {
+                float3 k = float3(-0.8660254, 0.5, 0.57735);
+                p = abs(p);
+                p.xy -= 2.0*min(dot(k.xy, p.xy), 0.0)*k.xy;
+                float2 d = float2(
+                length(p.xy-float2(clamp(p.x,-k.z*h.x,k.z*h.x), h.x))*sign(p.y-h.x),
+                p.z-h.y );
+                return min(max(d.x,d.y),0.0) + length(max(d,0.0));
+            }
+
             // a substitute for our min function that smoothly blends primitives together
             float smin ( float a, float b) {
                 // k is smoothness factor
@@ -70,7 +92,22 @@ Shader "examples/week 12/normals and lighting for ray marching"
                 distances[3] = sdf_sphere(float3(-sin(t), cos(t), 0) * 0.48, 0.75, pos);
                 distances[4] = sdf_sphere(float3(0, sin(t), -cos(t)) * 0.28, 0.6, pos);
                 distances[5] = sdf_sphere(pow(float3(cos(t), sin(t), -cos(t)), 10) * 0.65, 0.5, pos);
-                
+                float m = MAX_DIST;
+                for(int i = 0; i < objectCount; i++) {
+                    m = smin(m, distances[i]);
+                }
+
+                return m;
+            }
+            float get_dist_abby(float3 pos){
+                float t = _Time.y;
+
+                const int objectCount = 4;
+                float distances[objectCount];
+                distances[0] = sdOctahedron(pos+float3(0,-.7,0),1.0);
+                distances[1] = sdEllipsoid(pos+float3(0,0,0),float3(.9,.4,.9));
+                distances[2] = sdHexPrism(pos+float3(.8,sin(t)*0.5+0.5,0), float2(.3,.8));
+                distances[3] = sdHexPrism(pos+float3(-.8,sin(t)*0.5+0.5,0), float2(.3,.8));
                 float m = MAX_DIST;
                 for(int i = 0; i < objectCount; i++) {
                     m = smin(m, distances[i]);
@@ -79,6 +116,18 @@ Shader "examples/week 12/normals and lighting for ray marching"
                 return m;
             }
 
+            float3 get_normal_abby(float3 pos){
+                 float distAtPos = get_dist_abby(pos);
+                float sampleDelta = 0.01;
+                float3 sampleVec = float3(
+                    get_dist_abby(pos + float3(sampleDelta, 0, 0)),
+                    get_dist_abby(pos + float3(0, sampleDelta, 0)),
+                    get_dist_abby(pos + float3(0, 0, sampleDelta))
+                );
+
+                float3 normal = normalize(sampleVec - distAtPos);
+                return normal;
+            }
             float3 get_normal (float3 pos) {
                 float distAtPos = get_dist(pos);
                 float sampleDelta = 0.01;
@@ -91,7 +140,6 @@ Shader "examples/week 12/normals and lighting for ray marching"
                 float3 normal = normalize(sampleVec - distAtPos);
                 return normal;
             }
-
 
             float ray_march (float3 rayOrigin, float3 rayDir) {
                 // keep track of the total distance we've traveled
@@ -113,6 +161,16 @@ Shader "examples/week 12/normals and lighting for ray marching"
 
                 return marchDist;
             }
+            float ray_march_abby(float3 rayOrigin, float3 rayDir){
+                float marchDist = 0;
+                for(int i = 0; i < MAX_STEPS; i++) {
+                    float3 pos = rayOrigin + rayDir * marchDist;
+                    float distToSurf = get_dist_abby(pos);
+                    marchDist += distToSurf;
+                    if (distToSurf < MIN_DIST || marchDist > MAX_DIST) break;
+                }
+                return marchDist;
+            }
 
             float4 frag (Interpolators i) : SV_Target
             {
@@ -121,9 +179,9 @@ Shader "examples/week 12/normals and lighting for ray marching"
 
                 float3 camPos = _WorldSpaceCameraPos;
                 float3 rayDir = normalize(i.hitPos - camPos);
-                float d = ray_march(camPos, rayDir);
+                float d = ray_march_abby(camPos, rayDir);
 
-                normal = get_normal(camPos + rayDir * d);
+                normal = get_normal_abby(camPos + rayDir * d);
 
                 // half lambert lighting
                 float3 lightDirection = _WorldSpaceLightPos0;
